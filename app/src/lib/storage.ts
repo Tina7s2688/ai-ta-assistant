@@ -8,14 +8,80 @@ function cloneData(data: AppData): AppData {
   return JSON.parse(JSON.stringify(data)) as AppData
 }
 
+function isRecord(value: unknown): value is Record<string, unknown> {
+  return typeof value === 'object' && value !== null
+}
+
+function isCourseId(value: unknown): boolean {
+  return value === 'CDPS' || value === 'BNA' || value === 'COMMON'
+}
+
+function isLink(value: unknown): boolean {
+  return isRecord(value) && typeof value.label === 'string' && typeof value.url === 'string'
+}
+
+function isSchedule(value: unknown): boolean {
+  if (!isRecord(value)) return false
+  if (value.kind === 'once') return value.dueAt === undefined || typeof value.dueAt === 'string'
+
+  const { weekday, startWeek, endWeek, time } = value
+  return value.kind === 'weekly'
+    && typeof weekday === 'number' && Number.isInteger(weekday) && weekday >= 0 && weekday <= 6
+    && typeof startWeek === 'number' && Number.isInteger(startWeek)
+    && typeof endWeek === 'number' && Number.isInteger(endWeek) && startWeek <= endWeek
+    && (time === undefined || typeof time === 'string')
+}
+
+function isTask(value: unknown): boolean {
+  if (!isRecord(value)) return false
+
+  return typeof value.id === 'string'
+    && typeof value.title === 'string'
+    && isCourseId(value.courseId)
+    && (value.status === 'todo' || value.status === 'inProgress' || value.status === 'needsConfirmation' || value.status === 'done')
+    && (value.lane === undefined || value.lane === 'beforeClass' || value.lane === 'inClass' || value.lane === 'afterClass' || value.lane === 'needsConfirmation' || value.lane === 'closing')
+    && (value.week === undefined || typeof value.week === 'number')
+    && isSchedule(value.schedule)
+    && Array.isArray(value.checklist) && value.checklist.every((item) => typeof item === 'string')
+    && Array.isArray(value.links) && value.links.every(isLink)
+    && typeof value.notes === 'string'
+    && typeof value.completionNote === 'string'
+    && (value.completedAt === undefined || typeof value.completedAt === 'string')
+    && typeof value.archived === 'boolean'
+    && typeof value.sortOrder === 'number'
+}
+
+function isSpecialDate(value: unknown): boolean {
+  return isRecord(value)
+    && typeof value.id === 'string'
+    && isCourseId(value.courseId)
+    && typeof value.date === 'string'
+    && (value.kind === 'holiday' || value.kind === 'makeup' || value.kind === 'changed')
+    && typeof value.label === 'string'
+    && typeof value.notes === 'string'
+}
+
+function isSopEntry(value: unknown): boolean {
+  return isRecord(value)
+    && typeof value.id === 'string'
+    && (value.category === 'email' || value.category === 'moodle' || value.category === 'grouping' || value.category === 'assessment' || value.category === 'classroom' || value.category === 'tools')
+    && typeof value.title === 'string'
+    && typeof value.when === 'string'
+    && typeof value.owner === 'string'
+    && Array.isArray(value.steps) && value.steps.every((step) => typeof step === 'string')
+    && typeof value.notes === 'string'
+    && Array.isArray(value.links) && value.links.every(isLink)
+    && typeof value.updatedAt === 'string'
+}
+
 function isAppData(value: unknown): value is AppData {
   if (typeof value !== 'object' || value === null) return false
 
   const data = value as Partial<AppData>
   return data.schemaVersion === 1
-    && Array.isArray(data.tasks)
-    && Array.isArray(data.specialDates)
-    && Array.isArray(data.sopEntries)
+    && Array.isArray(data.tasks) && data.tasks.every(isTask)
+    && Array.isArray(data.specialDates) && data.specialDates.every(isSpecialDate)
+    && Array.isArray(data.sopEntries) && data.sopEntries.every(isSopEntry)
 }
 
 export function parseBackup(raw: string): AppData {

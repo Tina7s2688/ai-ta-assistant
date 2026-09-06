@@ -52,4 +52,18 @@ describe('dashboard task operations', () => {
     })
     expect(expandRecurringTask(weeklyTask, 3)).toBeNull()
   })
+
+  it('sorts an expanded recurring task by its derived overdue due date', () => {
+    const now = new Date('2026-09-07T12:00:00+08:00')
+    const weeklyTask = task('recurring-task', {
+      schedule: { kind: 'weekly', weekday: 1, startWeek: 1, endWeek: 1, time: '11:00' },
+    })
+    const expandedTask = expandRecurringTask(weeklyTask, 1)
+
+    expect(expandedTask).not.toBeNull()
+    expect(sortTasksForDashboard([task('other-task'), expandedTask!], now).map(({ id }) => id)).toEqual([
+      'recurring-task:week-1',
+      'other-task',
+    ])
+  })
 })

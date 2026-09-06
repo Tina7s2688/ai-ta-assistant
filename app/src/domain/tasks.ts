@@ -6,6 +6,7 @@ export interface ExpandedTask extends Task {
 }
 
 function getDueAt(task: Task): string | undefined {
+  if ('dueAt' in task && typeof task.dueAt === 'string') return task.dueAt
   return task.schedule.kind === 'once' ? task.schedule.dueAt : undefined
 }
 

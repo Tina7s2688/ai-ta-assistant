@@ -49,4 +49,19 @@ describe('local app storage', () => {
     expect(() => parseBackup('{"schemaVersion":99}')).toThrow('無法讀取備份檔，現有資料未變更。')
     expect(localStorage.getItem(storageKey)).toBe(beforeImport)
   })
+
+  it('rejects malformed entries in an otherwise versioned backup without changing saved data', () => {
+    const saved: AppData = {
+      schemaVersion: 1,
+      tasks: [],
+      specialDates: [],
+      sopEntries: [],
+    }
+    saveAppData(saved)
+    const beforeImport = localStorage.getItem(storageKey)
+    const malformedBackup = JSON.stringify({ ...saved, tasks: [null] })
+
+    expect(() => parseBackup(malformedBackup)).toThrow('無法讀取備份檔，現有資料未變更。')
+    expect(localStorage.getItem(storageKey)).toBe(beforeImport)
+  })
 })
