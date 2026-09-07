@@ -2,17 +2,14 @@ import { BrowserRouter, Route, Routes, useParams } from 'react-router-dom'
 import { AppShell } from './components/AppShell'
 import { AppDataProvider } from './lib/store'
 import { DashboardPage } from './pages/DashboardPage'
-
-export interface CoursePageProps { courseId: string }
-
-export function CoursePage(props: CoursePageProps) { return <PagePlaceholder title={`課程：${props.courseId}`} detail="課程內容將保留在此裝置上。" /> }
+import { CoursePage } from './pages/CoursePage'
+import { TasksPage } from './pages/TasksPage'
 
 function CourseRoute() {
   const { courseId } = useParams()
   return <CoursePage courseId={courseId ?? '未指定課程'} />
 }
 
-function TasksPage() { return <PagePlaceholder title="任務管理" detail="整理下一步要處理的教學工作。" /> }
 function SopPage() { return <PagePlaceholder title="教學 SOP" detail="建立可重複使用的教學流程。" /> }
 function BackupPage() { return <PagePlaceholder title="本機備份" detail="匯出與保護此裝置上的資料。" /> }
 
