@@ -431,3 +431,9 @@ git commit -m "feat: complete local AI TA assistant v1"
 - Add UI to create/view special-date makeup adjustments while retaining original topics.
 - Use the exact privacy reminder beside all task free-text fields.
 - Seed dynamic W1–W3 grouping-flow tasks and the B15 equipment SOP from the approved design update.
+
+## Final P1 Fix Report — 2026-09-07
+
+- Fixed TaskEditor weekly-range validation: a weekly task with `startWeek > endWeek` now remains unsaved and shows `結束週不得早於起始週。`.
+- Added regression coverage for both create and edit callbacks: an invalid W16–W1 range triggers neither callback nor the callback-backed localStorage write; a valid W1–W16 range still saves.
+- Verification: `npm test -- src/components/TaskEditor.test.tsx` (4/4), `npm test` (39/39), `npm run lint`, and `npm run build` (`tsc -b` plus Vite production build).

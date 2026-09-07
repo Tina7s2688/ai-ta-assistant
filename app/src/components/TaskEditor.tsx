@@ -24,6 +24,7 @@ function dateTimeValue(schedule: Schedule): string {
 
 export function TaskEditor({ task, onSave, onCancel }: TaskEditorProps) {
   const [draft, setDraft] = useState(() => taskToDraft(task))
+  const [scheduleError, setScheduleError] = useState('')
   const set = <K extends keyof EditableTask>(key: K, value: EditableTask[K]) => setDraft((current) => ({ ...current, [key]: value }))
   const schedule = draft.schedule
   const isRecurringInstance = task?.id.includes(':week-') ?? false
@@ -31,7 +32,15 @@ export function TaskEditor({ task, onSave, onCancel }: TaskEditorProps) {
   return <section className="task-editor" aria-labelledby="task-editor-title">
     <div className="editor-heading"><h2 id="task-editor-title">{task ? '編輯工作' : '新增工作'}</h2><button type="button" onClick={onCancel}>取消</button></div>
     <p className="privacy-reminder" role="note">請勿輸入學生個資、成績或作業內容。</p>
-    <form onSubmit={(event) => { event.preventDefault(); onSave(draft) }}>
+    <form onSubmit={(event) => {
+      event.preventDefault()
+      if (draft.schedule.kind === 'weekly' && draft.schedule.startWeek > draft.schedule.endWeek) {
+        setScheduleError('結束週不得早於起始週。')
+        return
+      }
+      setScheduleError('')
+      onSave(draft)
+    }}>
       <label>工作標題<input required value={draft.title} onChange={(event) => set('title', event.target.value)} /></label>
       <label>課程<select value={draft.courseId} onChange={(event) => set('courseId', event.target.value as CourseId)}><option value="CDPS">CDPS</option><option value="BNA">BNA</option><option value="COMMON">共同</option></select></label>
       <label>狀態<select value={draft.status} onChange={(event) => set('status', event.target.value as TaskStatus)}>{statuses.map((status) => <option key={status} value={status}>{status}</option>)}</select></label>
@@ -42,6 +51,7 @@ export function TaskEditor({ task, onSave, onCancel }: TaskEditorProps) {
         {schedule.kind === 'once'
           ? <label>期限日期與時間<input type="datetime-local" value={dateTimeValue(schedule)} onChange={(event) => set('schedule', { kind: 'once', dueAt: event.target.value ? `${event.target.value}:00+08:00` : undefined })} /></label>
           : <div className="weekly-fields"><label>星期<select value={schedule.weekday} onChange={(event) => set('schedule', { ...schedule, weekday: Number(event.target.value) as 0 | 1 | 2 | 3 | 4 | 5 | 6 })}>{[0, 1, 2, 3, 4, 5, 6].map((day) => <option key={day} value={day}>{day}</option>)}</select></label><label>起始週<input type="number" min="1" max="16" value={schedule.startWeek} onChange={(event) => set('schedule', { ...schedule, startWeek: Number(event.target.value) })} /></label><label>結束週<input type="number" min="1" max="16" value={schedule.endWeek} onChange={(event) => set('schedule', { ...schedule, endWeek: Number(event.target.value) })} /></label><label>時間<input type="time" value={schedule.time ?? ''} onChange={(event) => set('schedule', { ...schedule, time: event.target.value || undefined })} /></label></div>}
+        {scheduleError && <p role="alert">{scheduleError}</p>}
       </fieldset>
       <p className="privacy-reminder" role="note">請勿輸入學生個資、成績或作業內容。</p>
       <label>清單（一行一項）<textarea value={draft.checklist.join('\n')} onChange={(event) => set('checklist', event.target.value.split('\n').filter(Boolean))} /></label>
