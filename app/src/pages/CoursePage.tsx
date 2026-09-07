@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { WeekRoadmap } from '../components/WeekRoadmap'
-import { cdpsRoadmap, courses } from '../data/seed'
+import { bnaRoadmap, cdpsRoadmap, courses } from '../data/seed'
 import type { CourseId, Lane, Task } from '../domain/types'
 import { useAppData } from '../lib/store'
 
@@ -18,7 +18,7 @@ export function CoursePage({ courseId, selectedWeek = 1 }: CoursePageProps) {
   const { data, createTask } = useAppData()
   const [week, setWeek] = useState(selectedWeek)
   const course = courses.find((item) => item.id === courseId)
-  const roadmap = courseId === 'CDPS' ? cdpsRoadmap : []
+  const roadmap = courseId === 'CDPS' ? cdpsRoadmap : courseId === 'BNA' ? bnaRoadmap : []
   const specialDate = useMemo(() => {
     const firstMonday = new Date(Date.UTC(2026, 8, 7 + (week - 1) * 7)).toISOString().slice(0, 10)
     return data.specialDates.find((item) => item.courseId === courseId && item.date === firstMonday)

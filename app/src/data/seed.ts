@@ -41,6 +41,11 @@ export const cdpsRoadmap: RoadmapWeek[] = cdpsTopics.map((topic, index) => ({
   topic,
 }))
 
+export const bnaRoadmap: RoadmapWeek[] = Array.from({ length: 16 }, (_, index) => ({
+  week: index + 1,
+  topic: index === 0 ? 'Course Orientation' : '暫定課程架構 / 待確認',
+}))
+
 export const specialDates: SpecialDate[] = [
   {
     id: 'cdps-w4-holiday',
