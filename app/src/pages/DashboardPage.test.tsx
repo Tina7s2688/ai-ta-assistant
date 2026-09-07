@@ -16,17 +16,16 @@ describe('DashboardPage', () => {
   it('moves the card marked complete into the completed records', async () => {
     const user = userEvent.setup()
 
-    render(<AppDataProvider><DashboardPage now={new Date('2026-09-05T10:00:00+08:00')} /></AppDataProvider>)
+    render(<AppDataProvider><DashboardPage now={new Date('2026-09-07T09:00:00+08:00')} /></AppDataProvider>)
 
     expect(screen.getByText('W1')).toBeInTheDocument()
-    expect(screen.getByText('確認課前表單回覆與分組交接')).toBeInTheDocument()
+    expect(screen.getByText('W1 自我介紹影片作業區準備')).toBeInTheDocument()
 
-    const urgentTasks = screen.getByRole('region', { name: '緊急工作' })
-    expect(within(urgentTasks).getByText('發布第一週課程提醒')).toBeInTheDocument()
-    await user.click(within(urgentTasks).getByRole('button', { name: '標記完成' }))
+    const weeklyTasks = screen.getByRole('region', { name: '本週課程工作' })
+    await user.click(within(weeklyTasks).getAllByRole('button', { name: '標記完成' })[0])
 
     const completedRecords = screen.getByRole('region', { name: '完成紀錄' })
-    expect(within(completedRecords).getByText('發布第一週課程提醒')).toBeInTheDocument()
+    expect(within(completedRecords).getByText('W1 自我介紹影片作業區準備')).toBeInTheDocument()
   })
 
   it('does not render a future non-urgent task in the urgent section', () => {
@@ -54,6 +53,15 @@ describe('DashboardPage', () => {
   it('shows an empty-state message for course groups without weekly tasks', () => {
     render(<AppDataProvider><DashboardPage now={new Date('2026-09-05T10:00:00+08:00')} /></AppDataProvider>)
 
-    expect(screen.getAllByText('本週沒有工作。')).toHaveLength(2)
+    expect(screen.getAllByText('本週沒有工作。')).toHaveLength(1)
+  })
+
+  it('shows an explicit out-of-term state and nearest available week', () => {
+    render(<AppDataProvider><DashboardPage now={new Date('2027-01-02T10:00:00+08:00')} /></AppDataProvider>)
+
+    expect(screen.getByText('學期外')).toBeInTheDocument()
+    expect(screen.getByText(/最近可查看週次：W16/)).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: '前往 CDPS' })).toHaveAttribute('href', '/courses/CDPS')
+    expect(screen.getByRole('link', { name: '前往 BNA' })).toHaveAttribute('href', '/courses/BNA')
   })
 })

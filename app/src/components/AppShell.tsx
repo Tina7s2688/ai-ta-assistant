@@ -1,6 +1,6 @@
 import { NavLink } from 'react-router-dom'
 
-const navigation = [['/', '儀表板'], ['/tasks', '任務管理'], ['/sop', '教學 SOP'], ['/backup', '本機備份']] as const
+const navigation = [['/', '儀表板'], ['/courses/CDPS', 'CDPS 課程'], ['/courses/BNA', 'BNA 課程'], ['/tasks', '任務管理'], ['/sop', '教學 SOP'], ['/backup', '本機備份']] as const
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   return <div className="app-shell">

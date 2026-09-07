@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { expandRecurringTask, sortTasksForDashboard } from './tasks'
+import { expandRecurringTask, getTasksForWeek, sortTasksForDashboard } from './tasks'
 import type { Task } from './types'
 
 const task = (id: string, overrides: Partial<Task> = {}): Task => ({
@@ -65,5 +65,21 @@ describe('dashboard task operations', () => {
       'recurring-task:week-1',
       'other-task',
     ])
+  })
+
+  it('renders an edited recurring occurrence without changing the series template', () => {
+    const weeklyTask = task('recurring-task', {
+      title: '每週公告',
+      schedule: { kind: 'weekly', weekday: 1, startWeek: 1, endWeek: 2, time: '09:00' },
+    })
+    const tasks = getTasksForWeek([weeklyTask], [{
+      sourceTaskId: 'recurring-task',
+      week: 1,
+      task: { ...expandRecurringTask(weeklyTask, 1)!, title: 'W1 改期公告', status: 'done', schedule: { kind: 'once', dueAt: '2026-09-08T09:00:00+08:00' } },
+    }], 1)
+
+    expect(tasks).toEqual([expect.objectContaining({ id: 'recurring-task:week-1', title: 'W1 改期公告', status: 'done' })])
+    expect(weeklyTask).toMatchObject({ title: '每週公告', schedule: { kind: 'weekly', startWeek: 1, endWeek: 2 } })
+    expect(getTasksForWeek([weeklyTask], [], 2)).toEqual([expect.objectContaining({ id: 'recurring-task:week-2', title: '每週公告' })])
   })
 })

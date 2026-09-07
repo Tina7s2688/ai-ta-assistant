@@ -22,6 +22,13 @@ describe('AI TA assistant shell routes', () => {
     expect(screen.getByRole('heading', { name: '課程：physics-101' })).toBeInTheDocument()
   })
 
+  it('links to both course roadmaps from the sidebar', () => {
+    renderAt('/')
+
+    expect(screen.getByRole('link', { name: 'CDPS 課程' })).toHaveAttribute('href', '/courses/CDPS')
+    expect(screen.getByRole('link', { name: 'BNA 課程' })).toHaveAttribute('href', '/courses/BNA')
+  })
+
   it.each([
     ['/tasks', '任務管理'],
     ['/sop', '教學 SOP'],

@@ -20,6 +20,9 @@ describe('SopPage', () => {
     expect(screen.getByRole('tab', { name: '教室與器材' })).toBeInTheDocument()
     expect(screen.getByRole('tab', { name: '課程工具' })).toBeInTheDocument()
     expect(screen.getByText('請勿輸入學生個資、成績或作業內容。')).toBeInTheDocument()
+    fireEvent.click(screen.getByRole('tab', { name: '教室與器材' }))
+    expect(screen.getByText('B15 教室與器材 SOP')).toBeInTheDocument()
+    expect(screen.getByText('準備延長線：老師 1 條、TA 1 條為基本配置')).toBeInTheDocument()
   })
 
   it('saves an editable SOP entry with ordered steps', async () => {

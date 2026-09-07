@@ -24,6 +24,12 @@ export interface Task {
   sortOrder: number
 }
 
+export interface RecurringTaskOverride {
+  sourceTaskId: string
+  week: number
+  task: Task
+}
+
 export interface SpecialDate {
   id: string
   courseId: CourseId
@@ -63,4 +69,5 @@ export interface AppData {
   tasks: Task[]
   specialDates: SpecialDate[]
   sopEntries: SopEntry[]
+  recurringOverrides?: RecurringTaskOverride[]
 }

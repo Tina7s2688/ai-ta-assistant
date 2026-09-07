@@ -1,4 +1,4 @@
-import type { Task } from './types'
+import type { RecurringTaskOverride, Task } from './types'
 
 export interface ExpandedTask extends Task {
   dueAt?: string
@@ -61,4 +61,20 @@ export function expandRecurringTask(task: Task, week: number): ExpandedTask | nu
     dueAt,
     sourceTaskId: task.id,
   }
+}
+
+export function getTasksForWeek(tasks: Task[], overrides: RecurringTaskOverride[], week: number): ExpandedTask[] {
+  return tasks.flatMap((task) => {
+    const expanded = expandRecurringTask(task, week)
+    if (!expanded) return []
+    const override = overrides.find((item) => item.sourceTaskId === task.id && item.week === week)
+    return [override ? { ...override.task, id: expanded.id, week, sourceTaskId: task.id } : expanded]
+  })
+}
+
+export function getRecurringInstanceParts(taskId: string): { sourceTaskId: string; week: number } | null {
+  const match = /^(.*):week-(\d+)$/.exec(taskId)
+  if (!match) return null
+  const week = Number(match[2])
+  return Number.isInteger(week) && week >= 1 && week <= 16 ? { sourceTaskId: match[1], week } : null
 }

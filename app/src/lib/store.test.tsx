@@ -68,6 +68,21 @@ describe('app data store', () => {
     act(() => {
       result.current.replaceAllData({ schemaVersion: 1, tasks: [], specialDates: [date], sopEntries: [sop] })
     })
-    expect(result.current.data).toEqual({ schemaVersion: 1, tasks: [], specialDates: [date], sopEntries: [sop] })
+    expect(result.current.data).toEqual({ schemaVersion: 1, tasks: [], specialDates: [date], sopEntries: [sop], recurringOverrides: [] })
+  })
+
+  it('completes one recurring occurrence without completing the weekly template', () => {
+    const { result } = renderHook(() => useAppData(), { wrapper })
+    act(() => {
+      result.current.createTask({ ...newTask, title: '每週檢查', schedule: { kind: 'weekly', weekday: 1, startWeek: 1, endWeek: 2 } })
+    })
+    const recurring = result.current.data.tasks.at(-1)!
+
+    act(() => {
+      result.current.completeTask(`${recurring.id}:week-1`, 'W1 已完成')
+    })
+
+    expect(result.current.data.tasks.find((task) => task.id === recurring.id)).toMatchObject({ status: 'todo', schedule: { kind: 'weekly' } })
+    expect(result.current.data.recurringOverrides).toContainEqual(expect.objectContaining({ sourceTaskId: recurring.id, week: 1, task: expect.objectContaining({ status: 'done', completionNote: 'W1 已完成' }) }))
   })
 })

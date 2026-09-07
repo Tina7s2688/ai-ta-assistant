@@ -33,7 +33,7 @@ describe('local app storage', () => {
       sopEntries: [],
     }
 
-    expect(JSON.parse(exportBackup(data))).toEqual(data)
+    expect(JSON.parse(exportBackup(data))).toEqual({ ...data, recurringOverrides: [] })
   })
 
   it('rejects an invalid backup without changing saved data', () => {
@@ -63,5 +63,21 @@ describe('local app storage', () => {
 
     expect(() => parseBackup(malformedBackup)).toThrow('無法讀取備份檔，現有資料未變更。')
     expect(localStorage.getItem(storageKey)).toBe(beforeImport)
+  })
+
+  it('rejects invalid dates, non-finite numbers, out-of-range weeks, times, and blank links', () => {
+    const invalidBackups = [
+      { tasks: [{ ...seedData.tasks[0], schedule: { kind: 'once', dueAt: 'not-a-date' } }] },
+      { tasks: [{ ...seedData.tasks[0], schedule: { kind: 'once', dueAt: '2026-02-30T10:00:00+08:00' } }] },
+      { tasks: [{ ...seedData.tasks[0], sortOrder: Number.POSITIVE_INFINITY }] },
+      { tasks: [{ ...seedData.tasks[0], week: 17 }] },
+      { tasks: [{ ...seedData.tasks[0], schedule: { kind: 'weekly', weekday: 1, startWeek: 0, endWeek: 16, time: '25:00' } }] },
+      { tasks: [{ ...seedData.tasks[0], links: [{ label: ' ', url: '' }] }] },
+      { specialDates: [{ ...seedData.specialDates[0], date: '2026-02-30' }] },
+    ]
+
+    for (const invalid of invalidBackups) {
+      expect(() => parseBackup(JSON.stringify({ ...seedData, ...invalid }))).toThrow('無法讀取備份檔，現有資料未變更。')
+    }
   })
 })

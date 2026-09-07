@@ -1,6 +1,7 @@
 import { createContext, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react'
 import { exportBackup, loadAppData, parseBackup, saveAppData } from './storage'
 import type { AppData, SopEntry, SpecialDate, Task } from '../domain/types'
+import { expandRecurringTask, getRecurringInstanceParts } from '../domain/tasks'
 
 type NewTask = Omit<Task, 'id' | 'completedAt'>
 type TaskChanges = Partial<Omit<Task, 'id'>>
@@ -22,6 +23,19 @@ function newTaskId(): string {
   return globalThis.crypto?.randomUUID?.() ?? `task-${Date.now()}-${Math.random().toString(16).slice(2)}`
 }
 
+function updateRecurringOverride(current: AppData, taskId: string, changes: TaskChanges): AppData | null {
+  const parts = getRecurringInstanceParts(taskId)
+  if (!parts) return null
+  const source = current.tasks.find((task) => task.id === parts.sourceTaskId)
+  const instance = source && expandRecurringTask(source, parts.week)
+  if (!instance) return null
+  const prior = current.recurringOverrides?.find((item) => item.sourceTaskId === parts.sourceTaskId && item.week === parts.week)
+  const task = { ...(prior?.task ?? instance), ...changes, schedule: changes.schedule?.kind === 'once' ? changes.schedule : instance.schedule, id: taskId, week: parts.week }
+  const override = { sourceTaskId: parts.sourceTaskId, week: parts.week, task }
+  const recurringOverrides = [...(current.recurringOverrides ?? []).filter((item) => item.sourceTaskId !== parts.sourceTaskId || item.week !== parts.week), override]
+  return { ...current, recurringOverrides }
+}
+
 export function AppDataProvider({ children }: PropsWithChildren) {
   const [data, setData] = useState<AppData>(loadAppData)
 
@@ -35,24 +49,17 @@ export function AppDataProvider({ children }: PropsWithChildren) {
       setData((current) => ({ ...current, tasks: [...current.tasks, { ...task, id: newTaskId() }] }))
     },
     updateTask: (taskId, changes) => {
-      setData((current) => ({
-        ...current,
-        tasks: current.tasks.map((task) => task.id === taskId ? { ...task, ...changes, id: task.id } : task),
-      }))
+      setData((current) => updateRecurringOverride(current, taskId, changes) ?? ({ ...current, tasks: current.tasks.map((task) => task.id === taskId ? { ...task, ...changes, id: task.id } : task) }))
     },
     completeTask: (taskId, completionNote = '') => {
-      setData((current) => ({
-        ...current,
-        tasks: current.tasks.map((task) => task.id === taskId
+      setData((current) => updateRecurringOverride(current, taskId, { status: 'done', completionNote, completedAt: new Date().toISOString() }) ?? ({
+        ...current, tasks: current.tasks.map((task) => task.id === taskId
           ? { ...task, status: 'done', completionNote, completedAt: new Date().toISOString() }
           : task),
       }))
     },
     archiveTask: (taskId) => {
-      setData((current) => ({
-        ...current,
-        tasks: current.tasks.map((task) => task.id === taskId ? { ...task, archived: true } : task),
-      }))
+      setData((current) => updateRecurringOverride(current, taskId, { archived: true }) ?? ({ ...current, tasks: current.tasks.map((task) => task.id === taskId ? { ...task, archived: true } : task) }))
     },
     upsertSop: (entry) => {
       setData((current) => {

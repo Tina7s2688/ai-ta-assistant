@@ -5,9 +5,10 @@ interface WeekRoadmapProps {
   selectedWeek: number
   onSelectWeek: (week: number) => void
   specialDate?: SpecialDate
+  adjustments?: SpecialDate[]
 }
 
-export function WeekRoadmap({ roadmap, selectedWeek, onSelectWeek, specialDate }: WeekRoadmapProps) {
+export function WeekRoadmap({ roadmap, selectedWeek, onSelectWeek, specialDate, adjustments = [] }: WeekRoadmapProps) {
   const selected = roadmap.find((item) => item.week === selectedWeek)
 
   return <section className="week-roadmap" aria-labelledby="roadmap-heading">
@@ -19,6 +20,7 @@ export function WeekRoadmap({ roadmap, selectedWeek, onSelectWeek, specialDate }
       <p className="eyebrow">W{selectedWeek} 原定主題</p>
       <h3>{selected?.topic ?? '尚未安排主題'}</h3>
       {specialDate && <div className="schedule-adjustment"><strong>{specialDate.label}</strong><p>{specialDate.notes}</p></div>}
+      {adjustments.map((adjustment) => <div key={adjustment.id} className="schedule-adjustment"><strong>{adjustment.kind === 'makeup' ? '補課' : '課程調整'}：{adjustment.label}（{adjustment.date}）</strong><p>{adjustment.notes}</p></div>)}
     </article>
   </section>
 }
