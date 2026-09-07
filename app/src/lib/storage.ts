@@ -119,3 +119,8 @@ export function exportBackup(data: AppData): string {
     sopEntries: data.sopEntries,
   })
 }
+
+export function backupFilename(date = new Date()): string {
+  const localDate = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`
+  return `ai-ta-assistant-backup-${localDate}.json`
+}

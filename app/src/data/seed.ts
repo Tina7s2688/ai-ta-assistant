@@ -129,5 +129,12 @@ export const seedData: AppData = {
     },
   ],
   specialDates,
-  sopEntries: [],
+  sopEntries: [
+    { id: 'sop-course-pre-class-notice', category: 'email', title: 'Course Pre-Class Notice', when: '每次上課前 1–2 天', owner: '助教', steps: ['確認本週主題與公開教材', '發布課前提醒'], notes: '只提供課程共通資訊，不列入學生資料。', links: [], updatedAt: '2026-09-07' },
+    { id: 'sop-grouping', category: 'grouping', title: 'Grouping', when: '分組活動前', owner: '助教', steps: ['確認分組規則', '在課程平台公告分組方式'], notes: '不在 SOP 保留學生姓名或分組名單。', links: [], updatedAt: '2026-09-07' },
+    { id: 'sop-moodle-assignment-area', category: 'moodle', title: 'Moodle Assignment Area', when: '作業發布前', owner: '助教', steps: ['確認截止時間', '檢查繳交設定與說明'], notes: '不記錄學生繳交內容。', links: [], updatedAt: '2026-09-07' },
+    { id: 'sop-classroom-check', category: 'classroom', title: '教室與器材檢查', when: '上課前', owner: '助教', steps: ['確認投影與網路', '準備公開教材'], notes: '僅記錄設備流程。', links: [], updatedAt: '2026-09-07' },
+    { id: 'sop-coggle', category: 'tools', title: 'Coggle', when: '課堂活動前', owner: '助教', steps: ['建立課程共用圖', '確認公開提示內容'], notes: '不輸入學生個資或私人內容。', links: [], updatedAt: '2026-09-07' },
+    { id: 'sop-notebooklm', category: 'tools', title: 'NotebookLM', when: '課前整理時', owner: '助教', steps: ['整理公開教材', '建立課程筆記本'], notes: '只使用可公開或已授權的課程資料。', links: [], updatedAt: '2026-09-07' },
+  ],
 }

@@ -62,7 +62,7 @@ describe('app data store', () => {
       result.current.upsertSop(sop)
       result.current.setSpecialDate(date)
     })
-    expect(result.current.data.sopEntries).toEqual([sop])
+    expect(result.current.data.sopEntries).toContainEqual(sop)
     expect(result.current.data.specialDates).toContainEqual(date)
 
     act(() => {
