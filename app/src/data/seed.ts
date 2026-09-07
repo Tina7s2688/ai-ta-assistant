@@ -86,7 +86,7 @@ export const seedData: AppData = {
       status: 'todo',
       lane: 'beforeClass',
       week: 1,
-      schedule: { kind: 'once', dueAt: '2026-09-07T12:00:00+08:00' },
+      schedule: { kind: 'once', dueAt: '2026-09-07T10:00:00+08:00' },
       checklist: ['確認公告內容'],
       links: [],
       notes: '使用課程平台公告，勿貼入學生個資。',
