@@ -420,3 +420,20 @@ git commit -m "feat: complete local AI TA assistant v1"
 - Local persistence, export/import, corruption safety: Task 3 and Task 6.
 - No PII or external integrations: Global Constraints and Task 4/6 editor copy.
 - W16 closing work and two report types: Task 5.
+
+## Final Review Corrections
+
+- Make recurring tasks render as week-specific instances; completing or editing one instance must not change the full series.
+- Validate imported date/time strings, finite numeric fields, 1–16 week bounds, and non-empty link label/URL values before replacing current local data.
+- Add CDPS/BNA navigation from both AppShell and DashboardPage.
+- Render explicit `學期外` state and nearest viewable week outside W1–W16.
+- Seed W1 CDPS operational tasks and the supported BNA workflow without student data.
+- Add UI to create/view special-date makeup adjustments while retaining original topics.
+- Use the exact privacy reminder beside all task free-text fields.
+- Seed dynamic W1–W3 grouping-flow tasks and the B15 equipment SOP from the approved design update.
+
+## Final P1 Fix Report — 2026-09-07
+
+- Fixed TaskEditor weekly-range validation: a weekly task with `startWeek > endWeek` now remains unsaved and shows `結束週不得早於起始週。`.
+- Added regression coverage for both create and edit callbacks: an invalid W16–W1 range triggers neither callback nor the callback-backed localStorage write; a valid W1–W16 range still saves.
+- Verification: `npm test -- src/components/TaskEditor.test.tsx` (4/4), `npm test` (39/39), `npm run lint`, and `npm run build` (`tsc -b` plus Vite production build).
