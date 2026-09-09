@@ -16,4 +16,7 @@ function AppRoutes() {
   return <AppShell><Routes><Route path="/" element={<DashboardPage />} /><Route path="/courses/:courseId" element={<CourseRoute />} /><Route path="/tasks" element={<TasksPage />} /><Route path="/sop" element={<SopPage />} /><Route path="/backup" element={<BackupPage />} /></Routes></AppShell>
 }
 
-export default function App() { return <AppDataProvider><BrowserRouter><AppRoutes /></BrowserRouter></AppDataProvider> }
+export default function App() {
+  const basename = import.meta.env.BASE_URL.replace(/\/$/, '') || '/'
+  return <AppDataProvider><BrowserRouter basename={basename}><AppRoutes /></BrowserRouter></AppDataProvider>
+}

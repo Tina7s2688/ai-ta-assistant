@@ -4,6 +4,7 @@ import { defineConfig } from 'vitest/config'
 
 // https://vite.dev/config/
 export default defineConfig({
+  base: '/ai-ta-assistant/',
   plugins: [
     react(),
     VitePWA({
@@ -12,7 +13,11 @@ export default defineConfig({
         name: 'AI 助教小助理',
         short_name: 'AI助教',
         display: 'standalone',
-        start_url: '/',
+        start_url: '/ai-ta-assistant/',
+        scope: '/ai-ta-assistant/',
+        background_color: '#ffffff',
+        theme_color: '#17324d',
+        lang: 'zh-Hant',
         icons: [
           { src: 'icons/icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icons/icon-512.png', sizes: '512x512', type: 'image/png' },
